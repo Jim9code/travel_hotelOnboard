@@ -1,12 +1,30 @@
 'use client';
 
+import { useState } from 'react';
 import { Hotel, responseStatusColors, responseStatusLabels } from '@/types/hotel';
 
 interface HotelTableReadOnlyProps {
   hotels: Hotel[];
+  onUpdateConversation: (id: number, conversation: string) => void;
 }
 
-export default function HotelTableReadOnly({ hotels }: HotelTableReadOnlyProps) {
+export default function HotelTableReadOnly({ hotels, onUpdateConversation }: HotelTableReadOnlyProps) {
+  const [changes, setChanges] = useState<Record<number, string>>({});
+
+  const handleChange = (id: number, value: string) => {
+    setChanges(prev => ({ ...prev, [id]: value }));
+  };
+
+  const handleSave = (id: number) => {
+    const newValue = changes[id] || '';
+    onUpdateConversation(id, newValue);
+    setChanges(prev => {
+      const newChanges = { ...prev };
+      delete newChanges[id];
+      return newChanges;
+    });
+  };
+
   return (
     <div className="bg-white shadow-lg rounded-lg overflow-hidden">
       <div className="overflow-x-auto">
@@ -73,8 +91,22 @@ export default function HotelTableReadOnly({ hotels }: HotelTableReadOnlyProps) 
                   </div>
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-900">
-                  <div className="max-w-xs">
-                    {hotel.conversation || '-'}
+                  <div className="max-w-xs space-y-2">
+                    <textarea
+                      value={changes[hotel.id] !== undefined ? changes[hotel.id] : (hotel.conversation || '')}
+                      onChange={(e) => handleChange(hotel.id, e.target.value)}
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                      rows={2}
+                      placeholder="Add conversation notes..."
+                    />
+                    {changes[hotel.id] !== undefined && (
+                      <button
+                        onClick={() => handleSave(hotel.id)}
+                        className="w-full px-3 py-1 text-xs font-medium text-white bg-blue-600 border border-transparent rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        Save Notes
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>

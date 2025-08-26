@@ -17,6 +17,12 @@ export default function UpdatePage() {
     }
   ]);
 
+  const updateConversation = (id: number, conversation: string) => {
+    setHotels(hotels.map(hotel => 
+      hotel.id === id ? { ...hotel, conversation } : hotel
+    ));
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -24,12 +30,15 @@ export default function UpdatePage() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Hotel Status Update</h1>
           <p className="mt-2 text-gray-600">
-            View current status and information for all hotels
+            View current status and update conversation notes for hotels
           </p>
         </div>
 
         {/* Hotel Table */}
-        <HotelTableReadOnly hotels={hotels} />
+        <HotelTableReadOnly 
+          hotels={hotels} 
+          onUpdateConversation={updateConversation}
+        />
       </div>
     </div>
   );
