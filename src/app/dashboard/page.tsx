@@ -4,7 +4,7 @@ import { useState } from 'react';
 import HotelTable from '@/components/HotelTable';
 import AddHotelModal from '@/components/AddHotelModal';
 import { Hotel } from '@/types/hotel';
-import { Plus, Phone } from 'lucide-react';
+import { Plus, Phone, Eye } from 'lucide-react';
 
 export default function Dashboard() {
   const [hotels, setHotels] = useState<Hotel[]>([
@@ -75,6 +75,13 @@ export default function Dashboard() {
               <Plus className="w-4 h-4 mr-2" />
               Add Hotel
             </button>
+            <a
+              href="/update"
+              className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              <Eye className="w-4 h-4 mr-2" />
+              View Status
+            </a>
           </div>
         </div>
 

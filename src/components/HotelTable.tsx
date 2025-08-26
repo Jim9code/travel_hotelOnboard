@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Hotel, ResponseStatus, responseStatusColors, responseStatusLabels } from '@/types/hotel';
-import { Phone, Edit, Trash2, X } from 'lucide-react';
+import { Phone, Edit, Trash2, X, CheckSquare, Square } from 'lucide-react';
 
 interface HotelTableProps {
   hotels: Hotel[];
@@ -14,6 +14,7 @@ interface HotelTableProps {
 export default function HotelTable({ hotels, onUpdate, onDelete, currentCallIndex }: HotelTableProps) {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editData, setEditData] = useState<Partial<Hotel>>({});
+  const [selectedHotels, setSelectedHotels] = useState<Set<number>>(new Set());
 
   const startEditing = (hotel: Hotel) => {
     setEditingId(hotel.id);
@@ -43,12 +44,90 @@ export default function HotelTable({ hotels, onUpdate, onDelete, currentCallInde
     }
   };
 
+  const toggleHotelSelection = (hotelId: number) => {
+    const newSelected = new Set(selectedHotels);
+    if (newSelected.has(hotelId)) {
+      newSelected.delete(hotelId);
+    } else {
+      newSelected.add(hotelId);
+    }
+    setSelectedHotels(newSelected);
+  };
+
+  const selectAllHotels = () => {
+    if (selectedHotels.size === hotels.length) {
+      setSelectedHotels(new Set());
+    } else {
+      setSelectedHotels(new Set(hotels.map(hotel => hotel.id)));
+    }
+  };
+
+  const callSelectedHotels = () => {
+    const selectedHotelList = hotels.filter(hotel => selectedHotels.has(hotel.id));
+    if (selectedHotelList.length === 0) return;
+
+    // Call the first selected hotel
+    const firstHotel = selectedHotelList[0];
+    const phoneNumber = `${firstHotel.countryCode || '+234'}${firstHotel.phoneNumber}`;
+    makeCall(phoneNumber);
+
+    // Clear selection after calling
+    setSelectedHotels(new Set());
+  };
+
+  const isAllSelected = hotels.length > 0 && selectedHotels.size === hotels.length;
+  const isIndeterminate = selectedHotels.size > 0 && selectedHotels.size < hotels.length;
+
+
+
   return (
     <div className="bg-white shadow-lg rounded-lg overflow-hidden">
+      {/* Selection Controls */}
+      <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <button
+              onClick={selectAllHotels}
+              className="flex items-center space-x-2 text-sm text-gray-700 hover:text-gray-900"
+            >
+              {isAllSelected ? (
+                <CheckSquare className="w-5 h-5 text-blue-600" />
+              ) : isIndeterminate ? (
+                <div className="w-5 h-5 border-2 border-blue-600 bg-blue-600 rounded flex items-center justify-center">
+                  <div className="w-2 h-2 bg-white rounded-sm"></div>
+                </div>
+              ) : (
+                <Square className="w-5 h-5 text-gray-400" />
+              )}
+              <span>
+                {isAllSelected ? 'Deselect All' : 'Select All'}
+              </span>
+            </button>
+            {selectedHotels.size > 0 && (
+              <span className="text-sm text-gray-600">
+                {selectedHotels.size} hotel{selectedHotels.size !== 1 ? 's' : ''} selected
+              </span>
+            )}
+          </div>
+          {selectedHotels.size > 0 && (
+            <button
+              onClick={callSelectedHotels}
+              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center space-x-2"
+            >
+              <Phone className="w-4 h-4" />
+              <span>Call Selected ({selectedHotels.size})</span>
+            </button>
+          )}
+        </div>
+      </div>
+
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-blue-800">
             <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                Select
+              </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                 No.
               </th>
@@ -78,6 +157,18 @@ export default function HotelTable({ hotels, onUpdate, onDelete, currentCallInde
                 key={hotel.id} 
                 className={`${currentCallIndex === index ? 'bg-blue-100' : ''} hover:bg-gray-100`}
               >
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <button
+                    onClick={() => toggleHotelSelection(hotel.id)}
+                    className="flex items-center justify-center"
+                  >
+                    {selectedHotels.has(hotel.id) ? (
+                      <CheckSquare className="w-5 h-5 text-blue-600" />
+                    ) : (
+                      <Square className="w-5 h-5 text-gray-400 hover:text-gray-600" />
+                    )}
+                  </button>
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                   {hotel.id}
                 </td>
