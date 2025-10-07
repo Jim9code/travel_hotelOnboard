@@ -1,14 +1,49 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { Heart, MessageCircle, Share, ChevronDown, MapPin, Wifi, Coffee, Waves } from 'lucide-react';
+
+interface FeaturedHotel {
+  id: number;
+  name: string;
+  location: string;
+  distanceKm: number;
+  priceNgn: number;
+  discountPercent: number;
+  amenities: string[];
+  imageUrl: string;
+  heroImageUrl: string;
+}
 
 export default function TravelGuidePage() {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [hotel, setHotel] = useState<FeaturedHotel | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
   };
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await fetch('/api/featured-hotel', { cache: 'no-store' });
+        if (!res.ok) throw new Error('Failed to load featured hotel');
+        const data: FeaturedHotel = await res.json();
+        if (mounted) setHotel(data);
+      } catch (e: any) {
+        if (mounted) setError(e.message || 'Error loading featured hotel');
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-white">
@@ -31,16 +66,19 @@ export default function TravelGuidePage() {
 
           {/* Hero Image */}
           <div className="mb-4">
-            <div className="w-full h-48 bg-gradient-to-br from-green-200 to-blue-200 rounded-lg relative overflow-hidden">
-              {/* Simulated landscape elements */}
-              <div className="absolute bottom-0 left-0 w-full h-full">
-                <div className="absolute bottom-4 left-4 w-8 h-8 bg-gray-600 rounded-full"></div>
-                <div className="absolute bottom-8 right-20 w-12 h-12 bg-green-500 rounded-lg"></div>
-                <div className="absolute bottom-6 right-8 w-8 h-8 bg-blue-400 rounded-lg"></div>
-                <div className="absolute top-4 left-8 w-6 h-6 bg-green-400 rounded-full"></div>
-                <div className="absolute top-6 right-16 w-4 h-4 bg-green-400 rounded-full"></div>
-                <div className="absolute bottom-2 left-1/2 w-full h-1 bg-gray-300"></div>
-              </div>
+            <div className="w-full h-48 rounded-lg relative overflow-hidden">
+              {hotel?.heroImageUrl ? (
+                <Image
+                  src={hotel.heroImageUrl}
+                  alt={hotel.name}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 768px"
+                  className="object-cover"
+                  priority
+                />
+              ) : (
+                <div className="w-full h-full bg-gray-200" />
+              )}
             </div>
           </div>
 
@@ -113,41 +151,47 @@ export default function TravelGuidePage() {
             <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
               <div className="flex space-x-4">
                 {/* Hotel Image */}
-                <div className="w-20 h-20 bg-gradient-to-br from-orange-200 to-orange-300 rounded-lg flex-shrink-0">
-                  <div className="w-full h-full flex items-center justify-center">
-                    <div className="w-12 h-12 bg-orange-400 rounded-lg"></div>
-                  </div>
+                <div className="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-gray-200">
+                  {hotel?.imageUrl ? (
+                    <Image
+                      src={hotel.imageUrl}
+                      alt={hotel.name}
+                      width={80}
+                      height={80}
+                      className="object-cover w-full h-full"
+                    />
+                  ) : null}
                 </div>
                 
                 {/* Hotel Details */}
                 <div className="flex-1">
-                  <h4 className="font-bold text-black text-sm mb-1">Statement Hotel</h4>
+                  <h4 className="font-bold text-black text-sm mb-1">{hotel?.name || '...'}</h4>
                   
                   <div className="flex items-center text-gray-600 text-xs mb-2">
                     <MapPin className="w-3 h-3 mr-1" />
-                    <span>Jabi</span>
-                    <span className="ml-2">30KM away from you</span>
+                    <span>{hotel?.location || '...'}</span>
+                    {hotel && (
+                      <span className="ml-2">{hotel.distanceKm}KM away from you</span>
+                    )}
                   </div>
                   
                   <div className="flex items-center text-gray-600 text-xs mb-2 space-x-2">
-                    <span className="flex items-center">
-                      <Coffee className="w-3 h-3 mr-1" />
-                      Breakfast Included
-                    </span>
-                    <span className="flex items-center">
-                      <Wifi className="w-3 h-3 mr-1" />
-                      WiFi
-                    </span>
-                    <span className="flex items-center">
-                      <Waves className="w-3 h-3 mr-1" />
-                      Swimming Pool
-                    </span>
+                    {hotel?.amenities?.slice(0,3).map((amenity) => (
+                      <span key={amenity} className="flex items-center">
+                        {amenity.toLowerCase().includes('breakfast') && <Coffee className="w-3 h-3 mr-1" />}
+                        {amenity.toLowerCase().includes('wifi') && <Wifi className="w-3 h-3 mr-1" />}
+                        {amenity.toLowerCase().includes('pool') && <Waves className="w-3 h-3 mr-1" />}
+                        {amenity}
+                      </span>
+                    ))}
                   </div>
                   
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="text-red-600 font-bold text-lg">N60,000</div>
-                      <div className="text-gray-500 text-xs">Save 10%</div>
+                      <div className="text-red-600 font-bold text-lg">{hotel ? `N${hotel.priceNgn.toLocaleString()}` : '...'}</div>
+                      {hotel && (
+                        <div className="text-gray-500 text-xs">Save {hotel.discountPercent}%</div>
+                      )}
                     </div>
                     
                     <button className="bg-green-600 text-white px-4 py-2 rounded-lg text-xs font-medium hover:bg-green-700 transition-colors">

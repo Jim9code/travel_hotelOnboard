@@ -29,14 +29,14 @@ export default function ExitSurveyPage() {
         {/* Header */}
         <div className="p-6 md:p-8">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-semibold text-gray-900">Survey</h2>
+            <h2 className="text-2xl font-semibold text-gray-900">Let's hear from you</h2>
             <button aria-label="Close" className="text-gray-400 hover:text-gray-600">
               <X className="w-5 h-5" />
             </button>
           </div>
 
           <p className="mt-3 text-sm text-gray-600">
-            Please take a moment to tell us why you're leaving so we can improve TheTravelHunters.
+            <span className="font-bold">Please take a moment to tell us why you're leaving.</span>
           </p>
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-5">
@@ -74,7 +74,7 @@ export default function ExitSurveyPage() {
             )}
 
             <div className="pt-4 flex justify-center">
-              <button type="submit" className="px-6 py-2.5 rounded-full text-white text-sm shadow-sm hover:opacity-95" style={{ backgroundColor: '#40b869' }}>Submit</button>
+              <button type="submit" className="px-8 py-2.5 rounded-full text-white text-sm shadow-sm hover:opacity-95" style={{ backgroundColor: '#40b869' }}>Submit</button>
             </div>
           </form>
         </div>
