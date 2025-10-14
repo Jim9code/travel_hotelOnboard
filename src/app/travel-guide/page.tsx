@@ -47,15 +47,7 @@ export default function TravelGuidePage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Mobile Status Bar */}
-      <div className="bg-black text-white text-xs py-1 px-4 flex justify-between items-center">
-        <span>9:41</span>
-        <div className="flex items-center space-x-1">
-          <div className="w-4 h-2 bg-white rounded-sm"></div>
-          <div className="w-4 h-2 bg-white rounded-sm"></div>
-          <div className="w-4 h-2 bg-white rounded-sm"></div>
-        </div>
-      </div>
+      
 
       <div className="max-w-md mx-auto bg-white">
         {/* Header */}
@@ -195,7 +187,7 @@ export default function TravelGuidePage() {
                     </div>
                     
                     <button className="bg-green-600 text-white px-4 py-2 rounded-lg text-xs font-medium hover:bg-green-700 transition-colors">
-                      Book Now
+                      Find more hotels
                     </button>
                   </div>
                   
