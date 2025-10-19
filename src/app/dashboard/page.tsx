@@ -4,7 +4,7 @@ import { useState } from 'react';
 import HotelTable from '@/components/HotelTable';
 import AddHotelModal from '@/components/AddHotelModal';
 import { Hotel } from '@/types/hotel';
-import { Plus, Phone, Eye, MapPin } from 'lucide-react';
+import { Plus, Phone, Eye, MapPin, TrendingUp } from 'lucide-react';
 
 export default function Dashboard() {
   const [hotels, setHotels] = useState<Hotel[]>([
@@ -103,6 +103,14 @@ export default function Dashboard() {
             >
               <MapPin className="w-4 h-4 mr-2" />
               Travel Guide
+            </a>
+            <a
+              href="/survey-analytics"
+              className="inline-flex items-center px-4 py-2 border text-sm font-medium rounded-md text-white hover:opacity-95"
+              style={{ backgroundColor: '#3B82F6', borderColor: '#3B82F6' }}
+            >
+              <TrendingUp className="w-4 h-4 mr-2" />
+              Survey Analytics
             </a>
           </div>
         </div>
